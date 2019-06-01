@@ -1,0 +1,6 @@
+*.pyc
+*.csv
+venv/
+.gitignore
+.DS_Store
+.auth.json
