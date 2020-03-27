@@ -11,13 +11,13 @@ This repository is a collection of resources and tools that may be freely used t
 * Onfleet webhooks backend - [python](https://github.com/onfleet/developer/tree/master/api-tools/webhooks)
   * Create dedicated endpoints to validate and receive payloads from various Onfleet webhook triggers.
 * CSV task export - [python](https://github.com/onfleet/developer/tree/master/api-tools/export-tasks)
-  * Export tasks from the [Onfleet list tasks API endpoint](http://docs.onfleet.com/docs/tasks#list-tasks) either in CSV format, or in plain JSON. Specify time range, task state, and other query parameters.
+  * Export tasks from the [Onfleet list tasks API endpoint](https://docs.onfleet.com/reference#list-tasks) either in CSV format, or in plain JSON. Specify time range, task state, and other query parameters.
 * Driver import - [python](https://github.com/onfleet/developer/tree/master/api-tools/driver_import)
   * Interactive CLI to bulk-import drivers from CSV-formatted spreadsheets via the Onfleet API.
 
 ## Related resources
 
-[Onfleet API documentation](http://docs.onfleet.com/docs/introduction)
+[Onfleet API documentation](https://docs.onfleet.com/reference#introduction)
 
 ### Onfleet API Wrapper client libraries
 
