@@ -2,6 +2,6 @@ certifi==2019.3.9
 chardet==3.0.4
 configparser==3.7.4
 idna==2.8
-pyonfleet==1.0.1
+pyonfleet
 requests==2.22.0
 urllib3==1.25.3
