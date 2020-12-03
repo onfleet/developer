@@ -1,6 +1,33 @@
 from flask import Flask, request, make_response
+import os
 import json
 app = Flask(__name__)
+
+def verify_webhook(header, body, secret):
+    """Verifies that the webhook originated from Onfleet.
+    Args: 
+        header: value of the X-Onfleet-Signature header in raw bytes
+        body: should be the full body of the POST request in raw bytes, *not* the parsed JSON object
+        secret: the value of the webhook secret from the Onfleet dashboard, in hexadecimal format
+    Returns:
+        True for verified, False for not verified"""
+    import hashlib, hmac, binascii
+    return hmac.new(binascii.a2b_hex(secret), body, 'sha512').hexdigest() == header
+
+def warn_if_unverified(req):
+  if app.secret and not verify_webhook(req.headers['X-Onfleet-Signature'], req.data, app.secret):
+        print("Warning: could not verify the origin of the webhook invocation with provided secret key.")
+
+@app.before_first_request
+def check_for_secret():
+  if "WEBHOOK_SECRET" in os.environ:
+    app.secret = os.environ["WEBHOOK_SECRET"]
+  else:
+    print("\n***  NOTICE: Webhooks are running in unverified mode.  ***")
+    print("To verify webhooks, copy your Webhook secret key from the Onfleet dashboard "
+    "and set it in the environment as WEBHOOK_SECRET before running this script.\n\n"
+    "For example, export FLASK_APP=testwebhooks.py WEBHOOK_SECRET=XXXXXXXXXXXXXXXXXXXXX flask run")
+    app.secret = None
 
 # trigger id 0
 @app.route('/taskstart', methods=['GET','POST'])
@@ -11,6 +38,7 @@ def taskstart():
   elif request.method == 'POST':
     print('task start')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 1
@@ -22,6 +50,7 @@ def tasketa():
   elif request.method == 'POST':
     print('task ETA')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 2
@@ -34,6 +63,7 @@ def taskarrival():
   elif request.method == 'POST':
     print('task arrival')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 3
@@ -45,6 +75,7 @@ def taskcomplete():
   elif request.method == 'POST':
     print('task complete')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 4
@@ -56,6 +87,7 @@ def taskfailed():
   elif request.method == 'POST':
     print('task failed')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 5
@@ -67,6 +99,7 @@ def workerduty():
   elif request.method == 'POST':
     print('worker duty')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 6
@@ -78,6 +111,7 @@ def taskcreated():
   elif request.method == 'POST':
     print('task created')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 7
@@ -89,6 +123,7 @@ def taskupdated():
   elif request.method == 'POST':
     print('task updated')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 8
@@ -100,6 +135,7 @@ def taskdeleted():
   elif request.method == 'POST':
     print('task deleted')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 9
@@ -111,6 +147,7 @@ def taskassigned():
   elif request.method == 'POST':
     print('task assigned')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 10
@@ -122,6 +159,7 @@ def taskunassigned():
   elif request.method == 'POST':
     print('task unassigned')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 12
@@ -133,6 +171,7 @@ def taskdelayed():
   elif request.method == 'POST':
     print('task delayed')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 13
@@ -144,6 +183,7 @@ def taskcloned():
   elif request.method == 'POST':
     print('task cloned')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
 
 # trigger id 14
@@ -155,4 +195,5 @@ def smsrecipientresponsemissed():
   elif request.method == 'POST':
     print('SMS recipient response missed')
     print(json.dumps(request.get_json()))
+    warn_if_unverified(request)
     return ('',200)
