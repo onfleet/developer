@@ -4,6 +4,10 @@ Endpoints for each Onfleet webhook trigger. Validate the webhook and print paylo
 
 ## Installation
 
+### WARNING
+This project is incompatible with python versions later than 3.6.15. 
+If you are using a later version of python, please use [pyenv](https://github.com/pyenv/pyenv) or another tool to manage versions of python on your system. 
+
 1. ```pip install -r requirements.txt```
 2. ```export FLASK_APP=testwebhooks.py; flask run```
 3. expose to the wider internet ( if using ngrok: start ngrok server ) 
