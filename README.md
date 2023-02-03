@@ -26,6 +26,8 @@ This repository is a collection of resources and tools that may be freely used t
   * [PyPi project description](https://pypi.org/project/pyonfleet/)
 * `node-onfleet` - Onfleet nodeJS API wrapper library:
   * [repository + documentation](https://github.com/onfleet/node-onfleet)
+* `php-onfleet` - Onfleet PHP API wrapper library:
+  * [repository + documentation](https://github.com/onfleet/php-onfleet)
 
 ## Installation
 
