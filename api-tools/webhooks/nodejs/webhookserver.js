@@ -14,7 +14,7 @@ app.get("/webhooks", (req, res) => {
 //POST method for the webhook payload
 app.post("/webhooks", jsonParser, (req, res) => {
   res.status(200).send(req.query.check);
-  var content = JSON.stringify(req.body.data) + '';
+  var content = JSON.stringify(req.body) + '';
   console.log(content)
 }) 
 
