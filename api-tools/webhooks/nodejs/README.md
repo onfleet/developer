@@ -13,5 +13,5 @@ May require bodyParser
 ### Use 
 
 1. Start node server by use ```node webhookserver.js``` in terminal
-2. Expose to the wider internet ( if using ngrok: start ngrok server ) 
-3. Create a webhook for your trigger event, using the path from the table below as your webhook URL.
+2. Expose to the wider internet ( if using ngrok: start ngrok server )
+3. This is a generic receiver, works for all Onfleet webhooks
