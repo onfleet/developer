@@ -27,5 +27,5 @@ for ID in id_list:
         pass  # Sleep for 1 seconds before the next request, built-in throttle so it would not violate 
 
 # Example cURL command with Basic Auth
-print("\nExample cURL command:")
-print(f"curl -u {USERNAME}:{PASSWORD} -X DELETE '{API_URL}?query=YOUR_QUERY'")
+# print("\nExample cURL command:")
+# print(f"curl -u [REDACTED]:[REDACTED] -X DELETE '{API_URL}?query=YOUR_QUERY'")
