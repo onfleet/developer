@@ -16,7 +16,7 @@ app.get("/webhooks", (req, res) => {
 app.post("/webhooks", jsonParser, (req, res) => {
   const content = JSON.stringify(req.body);
   console.log(content)
-}) 
+res.sendStatus(200);
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
