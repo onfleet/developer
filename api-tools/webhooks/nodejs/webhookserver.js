@@ -1,4 +1,5 @@
 const express = require('express');
+const escape = require('escape-html');
 const app = express();
 const port = 3000;
 const bodyParser = require('body-parser')
@@ -7,13 +8,12 @@ const jsonParser = bodyParser.json()
 
 //GET method query validation
 app.get("/webhooks", (req, res) => {
-  res.status(200).send(req.query.check);
+  res.status(200).send(escape(req.query.check));
   //console.log(req.query.check);
 })
 
 //POST method for the webhook payload
 app.post("/webhooks", jsonParser, (req, res) => {
-  res.status(200).send(req.query.check);
   const content = JSON.stringify(req.body);
   console.log(content)
 }) 
