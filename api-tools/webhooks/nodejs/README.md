@@ -4,7 +4,7 @@ Endpoints for each Onfleet webhook trigger. Validate the webhook and print paylo
 
 ## Installation
 Require node and express
-May require bodyParser
+May require body-parser
 
 1. Install node and npm
 2. ```npm install express```

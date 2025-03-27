@@ -1,22 +1,21 @@
 const express = require('express');
+const escape = require('escape-html');
 const app = express();
 const port = 3000;
-const bodyParser = require('body-parser')
-const jsonParser = bodyParser.json()
 //const fs = require('node:fs');
-
+app.use(express.json());
 //GET method query validation
 app.get("/webhooks", (req, res) => {
-  res.status(200).send(req.query.check);
+  res.status(200).send(escape(req.query.check));
   //console.log(req.query.check);
 })
 
 //POST method for the webhook payload
-app.post("/webhooks", jsonParser, (req, res) => {
-  res.status(200).send(req.query.check);
-  var content = JSON.stringify(req.body) + '';
+app.post("/webhooks", (req, res) => {
+  const content = JSON.stringify(req.body);
   console.log(content)
-}) 
+  res.sendStatus(200);
+})
 
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
