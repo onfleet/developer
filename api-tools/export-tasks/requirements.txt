@@ -3,5 +3,5 @@ chardet==3.0.4
 configparser==3.7.4
 idna==2.8
 pyonfleet
-requests==2.31.0
+requests==2.32.0
 urllib3==1.26.19
