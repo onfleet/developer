@@ -29,6 +29,18 @@ def check_for_secret():
     "For example, export FLASK_APP=testwebhooks.py WEBHOOK_SECRET=XXXXXXXXXXXXXXXXXXXXX flask run")
     app.secret = None
 
+@app.route('/webhooks', methods=['GET', 'POST'])
+def webhooks():
+    if request.method == 'GET':
+        check = request.args.get('check', '')
+        print(f"Received webhook verification GET: {check}")
+        return check, 200
+    elif request.method == 'POST':
+        print('generic webhook')
+        print(json.dumps(request.get_json()))
+        warn_if_unverified(request)
+        return ('', 200)
+
 # trigger id 0
 @app.route('/taskstart', methods=['GET','POST'])
 def taskstart():
