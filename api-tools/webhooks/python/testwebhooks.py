@@ -179,7 +179,7 @@ def workercreated():
   if request.method == 'GET':
     return request.args.get('check','')
   elif request.method == 'POST':
-    print(' Worker Created')
+    print('Worker Created')
     print(json.dumps(request.get_json()))
     #warn_if_unverified(request)
     return ('',200)
