@@ -4,4 +4,4 @@ configparser==3.7.4
 idna==3.7
 pyonfleet
 requests==2.32.0
-urllib3==1.26.19
+urllib3==2.5.0
