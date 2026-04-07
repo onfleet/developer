@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Onfleet — Delete Entities</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f5f5;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 32px;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    input[type="password"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d0d0d0;
+      border-radius: 5px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      background: #fff;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="password"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #555;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.8125rem;
+    }
+
+    .field { margin-bottom: 18px; }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .error-msg {
+      display: none;
+      font-size: 0.8125rem;
+      color: #c0392b;
+      margin-top: 6px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background: #1a1a1a;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-top: 4px;
+    }
+
+    button:hover:not(:disabled) { background: #333; }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* Results */
+    #results-section { display: none; margin-top: 28px; }
+
+    #results-section h2 {
+      font-size: 0.9375rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    #results-log {
+      border: 1px solid #e0e0e0;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .result-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 12px;
+      font-size: 0.8125rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .result-row:last-child { border-bottom: none; }
+
+    .result-id {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      flex-shrink: 0;
+      color: #333;
+    }
+
+    .result-msg { color: #555; flex: 1; word-break: break-all; }
+
+    .badge {
+      flex-shrink: 0;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-success { background: #e6f4ea; color: #1e7e34; }
+    .badge-error   { background: #fdecea; color: #c0392b; }
+
+    #summary {
+      margin-top: 12px;
+      font-size: 0.8125rem;
+      color: #555;
+    }
+
+    #summary strong { color: #1a1a1a; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Delete Onfleet Entities</h1>
+
+    <div class="field">
+      <label for="api-key">API Key</label>
+      <input type="password" id="api-key" placeholder="Your Onfleet API key" autocomplete="off" />
+      <div class="error-msg" id="err-api-key">API key is required.</div>
+    </div>
+
+    <div class="field">
+      <label for="entity">Entity Type</label>
+      <select id="entity">
+        <option value="workers">Workers</option>
+        <option value="tasks">Tasks</option>
+        <option value="admins">Admins</option>
+        <option value="teams">Teams</option>
+        <option value="webhooks">Webhooks</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="ids">IDs to Delete</label>
+      <textarea id="ids" placeholder="One ID per line&#10;e.g.&#10;abc123&#10;def456"></textarea>
+      <div class="hint">Enter one ID per line.</div>
+      <div class="error-msg" id="err-ids">Please enter at least one valid ID.</div>
+    </div>
+
+    <button id="delete-btn">Delete</button>
+
+    <div id="results-section">
+      <h2>Results</h2>
+      <div id="results-log"></div>
+      <div id="summary"></div>
+    </div>
+  </div>
+
+  <script>
+    const btn       = document.getElementById("delete-btn");
+    const apiKeyEl  = document.getElementById("api-key");
+    const entityEl  = document.getElementById("entity");
+    const idsEl     = document.getElementById("ids");
+    const errApiKey = document.getElementById("err-api-key");
+    const errIds    = document.getElementById("err-ids");
+    const section   = document.getElementById("results-section");
+    const log       = document.getElementById("results-log");
+    const summary   = document.getElementById("summary");
+
+    function showError(el, show) {
+      el.style.display = show ? "block" : "none";
+    }
+
+    btn.addEventListener("click", async () => {
+      const apiKey = apiKeyEl.value.trim();
+      const entity = entityEl.value;
+      const ids = idsEl.value.split("\n").map(s => s.trim()).filter(Boolean);
+
+      showError(errApiKey, !apiKey);
+      showError(errIds, ids.length === 0);
+      if (!apiKey || ids.length === 0) return;
+
+      if (!confirm(`Delete ${ids.length} ${entity}? This cannot be undone.`)) return;
+
+      btn.disabled = true;
+      log.innerHTML = "";
+      summary.innerHTML = "";
+      section.style.display = "block";
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      const resp = await fetch("/delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ api_key: apiKey, entity, ids }),
+      });
+
+      if (!resp.ok) {
+        const body = await resp.json();
+        log.innerHTML = `<div class="result-row"><span class="result-msg" style="color:#c0392b">${body.error}</span></div>`;
+        btn.disabled = false;
+        return;
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith("data:")) continue;
+          const payload = JSON.parse(line.slice(5).trim());
+
+          if (payload.done) {
+            summary.innerHTML =
+              `Completed: <strong>${successCount} deleted</strong>, <strong style="color:#c0392b">${errorCount} failed</strong> out of ${ids.length} total.`;
+            break;
+          }
+
+          const row = document.createElement("div");
+          row.className = "result-row";
+
+          const badge = document.createElement("span");
+          badge.className = `badge badge-${payload.status}`;
+          badge.textContent = payload.status;
+
+          const idEl = document.createElement("span");
+          idEl.className = "result-id";
+          idEl.textContent = payload.id;
+
+          const msg = document.createElement("span");
+          msg.className = "result-msg";
+          msg.textContent = payload.message;
+
+          row.appendChild(badge);
+          row.appendChild(idEl);
+          row.appendChild(msg);
+          log.appendChild(row);
+
+          if (payload.status === "success") successCount++;
+          else errorCount++;
+        }
+      }
+
+      btn.disabled = false;
+    });
+  </script>
+</body>
+</html>
