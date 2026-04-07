@@ -1,71 +1,118 @@
-# Delete Multiple Entities 
+# Delete Multiple Entities
 
-Delete Multiple Entities with a loop, this could be tasks or drivers, any allowed deletions.
+Delete multiple Onfleet entities (workers, tasks, admins, teams, or webhooks) in bulk via an interactive web UI or directly via the command-line script.
+
+This tool is part of the [Onfleet Developer open source repository](https://github.com/onfleet/developer) — a collection of resources and tools to augment and accelerate custom integrations with the Onfleet API.
+
+> **Note:** All scripts require Python 3.
 
 ## Table of Contents
 
-- [Installation](#installation)
 - [Disclaimer](#disclaimer)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [Template File](#template-file)
-- [Output](#output)
+- [Files](#files)
+- [Web UI (recommended)](#web-ui-recommended)
+  - [Installation](#installation)
+  - [Running locally](#running-locally)
+  - [Usage](#usage)
+- [Command-line script](#command-line-script)
 - [Dependencies](#dependencies)
+- [Related resources](#related-resources)
 
-## Installation
+---
 
-1. Clone the repository:
-
-```
-
-git clone https://github.com/onfleet/developer.git
-
-
-```
-2. Install the required dependencies:
-
-```
-
-pip install requests
-pip install datetime
-
-```
 ## Disclaimer
 
-This script does not have a roll back function. Any deletion using this script cannot be reversed. Please check before you execute this script. Onfleet is not responsible for any loss of data by using this script. 
+**This tool does not have a rollback function. Any deletion cannot be reversed.**
+Please double-check your inputs before executing. Onfleet is not responsible for any loss of data resulting from the use of this tool.
 
-## Usage
+---
 
-1. Open the `deletion.py` file and fill in the necessary line with your info.
+## Files
 
-2. Replace `ENTITY` with the entity you are accessing on line 6. Replace `USERNAME` with your actual Onfleet API Key on line 9. Include an array of Onfleet IDs you wish to delete  ``
+| File | Description |
+|------|-------------|
+| `app.py` | Flask web server — serves the UI and proxies delete requests to the Onfleet API |
+| `templates/index.html` | Browser-based UI |
+| `deletion.py` | Original command-line script for manual use |
 
-3. Run the program:
+---
 
+## Web UI (recommended)
+
+### Installation
+
+1. Clone the repository and navigate to this folder:
+
+```bash
+git clone https://github.com/onfleet/developer.git
+cd developer/api-tools/delete-entities
 ```
 
+2. (Optional but recommended) Create and activate a virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate      # macOS/Linux
+venv\Scripts\activate         # Windows
+```
+
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+### Running locally
+
+```bash
+python app.py
+```
+
+Then open your browser and go to:
+
+```
+http://127.0.0.1:5000
+```
+
+### Usage
+
+1. **API Key** — Enter your Onfleet API key. For help creating one, see the [Onfleet API key guide](https://support.onfleet.com/hc/en-us/articles/360045763292-API#h_01FTGN2E1AGNAA4DB3Q2RPVWD9).
+2. **Entity Type** — Select the type of entity to delete: Workers, Tasks, Admins, Teams, or Webhooks.
+3. **IDs to Delete** — Paste one entity ID per line.
+4. Click **Delete** — all fields are validated before submission. A confirmation dialog will appear reminding you that deletions are permanent.
+5. Results stream in live as each deletion is processed. Any errors are shown inline without stopping the remaining deletions.
+6. A final summary shows total succeeded and failed counts.
+
+---
+
+## Command-line script
+
+If you prefer to run without the UI, edit `deletion.py` directly:
+
+1. Set `ENTITY` to the entity type (e.g. `tasks`, `workers`).
+2. Set `USERNAME` to your Onfleet API key.
+3. Populate `id_list` with the IDs to delete.
+4. Run:
+
+```bash
+pip install requests
 python deletion.py
-
 ```
 
-4. Check the console output for any errors encountered during deletion.
-
-## Configuration
-
-To configure the program, you need to provide your Onfleet API key. Replace `USERNAME` on line 9 of the program with your actual API key. If needed, [here](https://support.onfleet.com/hc/en-us/articles/360045763292-API#h_01FTGN2E1AGNAA4DB3Q2RPVWD9) is more information on how to create an API key in Onfleet
-
-## Template File
-
-## Output
-
-ID that has been deleted or encountered any errors from the Onfleet API response.
+---
 
 ## Dependencies
 
-The program relies on the following dependencies:
+| Package | Purpose |
+|---------|---------|
+| `flask` | Local web server and UI |
+| `requests` | HTTP requests to the Onfleet API |
 
-- `requests`: Python's built-in module for simple HTTP requests.
-- `datetime`: Python's built-in module for working with dates and times.
+---
 
+## Related resources
 
-Make sure you have these dependencies installed before running the program.
+- [Onfleet API documentation](https://docs.onfleet.com/reference#introduction)
+- [Onfleet API key setup](https://support.onfleet.com/hc/en-us/articles/360045763292-API#h_01FTGN2E1AGNAA4DB3Q2RPVWD9)
+- `pyonfleet` — Onfleet Python API wrapper: [repository](https://github.com/onfleet/pyonfleet) · [PyPI](https://pypi.org/project/pyonfleet/)
+- `node-onfleet` — Onfleet Node.js API wrapper: [repository](https://github.com/onfleet/node-onfleet)
