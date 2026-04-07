@@ -62,6 +62,13 @@
       border-color: #555;
     }
 
+    /* Red border on invalid fields */
+    input.invalid,
+    select.invalid,
+    textarea.invalid {
+      border-color: #c0392b;
+    }
+
     textarea {
       resize: vertical;
       min-height: 120px;
@@ -155,6 +162,79 @@
     }
 
     #summary strong { color: #1a1a1a; }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-backdrop.visible {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 8px;
+      padding: 28px 28px 24px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    .modal-icon {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+    }
+
+    .modal h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 0.8375rem;
+      color: #555;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+
+    .modal p strong {
+      color: #1a1a1a;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    .modal-actions button {
+      width: auto;
+      padding: 8px 18px;
+      margin-top: 0;
+      font-size: 0.8375rem;
+    }
+
+    #modal-cancel {
+      background: #fff;
+      color: #1a1a1a;
+      border: 1px solid #d0d0d0;
+    }
+
+    #modal-cancel:hover { background: #f5f5f5; }
+
+    #modal-confirm {
+      background: #c0392b;
+    }
+
+    #modal-confirm:hover { background: #a93226; }
   </style>
 </head>
 <body>
@@ -170,12 +250,14 @@
     <div class="field">
       <label for="entity">Entity Type</label>
       <select id="entity">
+        <option value="">— Select an entity —</option>
         <option value="workers">Workers</option>
         <option value="tasks">Tasks</option>
         <option value="admins">Admins</option>
         <option value="teams">Teams</option>
         <option value="webhooks">Webhooks</option>
       </select>
+      <div class="error-msg" id="err-entity">Please select an entity type.</div>
     </div>
 
     <div class="field">
@@ -194,31 +276,82 @@
     </div>
   </div>
 
-  <script>
-    const btn       = document.getElementById("delete-btn");
-    const apiKeyEl  = document.getElementById("api-key");
-    const entityEl  = document.getElementById("entity");
-    const idsEl     = document.getElementById("ids");
-    const errApiKey = document.getElementById("err-api-key");
-    const errIds    = document.getElementById("err-ids");
-    const section   = document.getElementById("results-section");
-    const log       = document.getElementById("results-log");
-    const summary   = document.getElementById("summary");
+  <!-- Confirmation modal -->
+  <div class="modal-backdrop" id="modal-backdrop">
+    <div class="modal">
+      <div class="modal-icon">⚠️</div>
+      <h2>Are you sure?</h2>
+      <p id="modal-body">You are about to delete <strong id="modal-count"></strong> — once this is done, <strong>you cannot recover anything back</strong>.</p>
+      <div class="modal-actions">
+        <button id="modal-cancel">Cancel</button>
+        <button id="modal-confirm">Yes, delete</button>
+      </div>
+    </div>
+  </div>
 
-    function showError(el, show) {
-      el.style.display = show ? "block" : "none";
+  <script>
+    const btn         = document.getElementById("delete-btn");
+    const apiKeyEl    = document.getElementById("api-key");
+    const entityEl    = document.getElementById("entity");
+    const idsEl       = document.getElementById("ids");
+    const errApiKey   = document.getElementById("err-api-key");
+    const errEntity   = document.getElementById("err-entity");
+    const errIds      = document.getElementById("err-ids");
+    const section     = document.getElementById("results-section");
+    const log         = document.getElementById("results-log");
+    const summary     = document.getElementById("summary");
+    const backdrop    = document.getElementById("modal-backdrop");
+    const modalCount  = document.getElementById("modal-count");
+    const modalCancel = document.getElementById("modal-cancel");
+    const modalConfirm= document.getElementById("modal-confirm");
+
+    // Clear error state when user edits a field
+    apiKeyEl.addEventListener("input", () => setError(apiKeyEl, errApiKey, false));
+    entityEl.addEventListener("change", () => setError(entityEl, errEntity, false));
+    idsEl.addEventListener("input", () => setError(idsEl, errIds, false));
+
+    function setError(inputEl, msgEl, show) {
+      msgEl.style.display = show ? "block" : "none";
+      inputEl.classList.toggle("invalid", show);
+    }
+
+    function validate(apiKey, entity, ids) {
+      let valid = true;
+      if (!apiKey)        { setError(apiKeyEl, errApiKey, true);  valid = false; }
+      if (!entity)        { setError(entityEl, errEntity, true);  valid = false; }
+      if (ids.length === 0) { setError(idsEl, errIds, true);      valid = false; }
+      return valid;
+    }
+
+    // Returns a promise that resolves true (confirmed) or false (cancelled)
+    function showModal(count, entity) {
+      modalCount.textContent = `${count} ${entity} record${count !== 1 ? "s" : ""}`;
+      backdrop.classList.add("visible");
+      return new Promise((resolve) => {
+        function onConfirm() { cleanup(); resolve(true); }
+        function onCancel()  { cleanup(); resolve(false); }
+        function onBackdrop(e) { if (e.target === backdrop) { cleanup(); resolve(false); } }
+        function cleanup() {
+          backdrop.classList.remove("visible");
+          modalConfirm.removeEventListener("click", onConfirm);
+          modalCancel.removeEventListener("click", onCancel);
+          backdrop.removeEventListener("click", onBackdrop);
+        }
+        modalConfirm.addEventListener("click", onConfirm);
+        modalCancel.addEventListener("click", onCancel);
+        backdrop.addEventListener("click", onBackdrop);
+      });
     }
 
     btn.addEventListener("click", async () => {
       const apiKey = apiKeyEl.value.trim();
       const entity = entityEl.value;
-      const ids = idsEl.value.split("\n").map(s => s.trim()).filter(Boolean);
+      const ids    = idsEl.value.split("\n").map(s => s.trim()).filter(Boolean);
 
-      showError(errApiKey, !apiKey);
-      showError(errIds, ids.length === 0);
-      if (!apiKey || ids.length === 0) return;
+      if (!validate(apiKey, entity, ids)) return;
 
-      if (!confirm(`Delete ${ids.length} ${entity}? This cannot be undone.`)) return;
+      const confirmed = await showModal(ids.length, entity);
+      if (!confirmed) return;
 
       btn.disabled = true;
       log.innerHTML = "";
@@ -241,7 +374,7 @@
         return;
       }
 
-      const reader = resp.body.getReader();
+      const reader  = resp.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
 
