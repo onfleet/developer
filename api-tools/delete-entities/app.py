@@ -1,3 +1,4 @@
+import html
 import json
 import time
 
@@ -25,7 +26,7 @@ def delete_entities():
     if not api_key:
         return {"error": "API key is required."}, 400
     if entity not in VALID_ENTITIES:
-        return {"error": f"Invalid entity '{entity}'."}, 400
+        return {"error": f"Invalid entity '{html.escape(entity)}'."}, 400
     if not ids:
         return {"error": "No valid IDs provided."}, 400
 

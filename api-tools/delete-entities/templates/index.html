@@ -369,7 +369,14 @@
 
       if (!resp.ok) {
         const body = await resp.json();
-        log.innerHTML = `<div class="result-row"><span class="result-msg" style="color:#c0392b">${body.error}</span></div>`;
+        const errRow = document.createElement("div");
+        errRow.className = "result-row";
+        const errMsg = document.createElement("span");
+        errMsg.className = "result-msg";
+        errMsg.style.color = "#c0392b";
+        errMsg.textContent = body.error;
+        errRow.appendChild(errMsg);
+        log.appendChild(errRow);
         btn.disabled = false;
         return;
       }
