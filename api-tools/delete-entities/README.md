@@ -74,6 +74,21 @@ Then open your browser and go to:
 http://127.0.0.1:5000
 ```
 
+> **Debug mode:** Debug mode is **off by default**. Never enable it on a shared or internet-facing machine — it exposes an interactive Python debugger that allows arbitrary code execution. To turn it on temporarily during local development only:
+>
+> ```bash
+> # macOS/Linux
+> FLASK_DEBUG=1 python app.py
+>
+> # Windows (Command Prompt)
+> set FLASK_DEBUG=1 && python app.py
+>
+> # Windows (PowerShell)
+> $env:FLASK_DEBUG="1"; python app.py
+> ```
+>
+> Leave `FLASK_DEBUG` unset (or set to `0`) for normal use.
+
 ### Usage
 
 1. **API Key** — Enter your Onfleet API key. For help creating one, see the [Onfleet API key guide](https://support.onfleet.com/hc/en-us/articles/360045763292-API#h_01FTGN2E1AGNAA4DB3Q2RPVWD9).

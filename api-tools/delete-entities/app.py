@@ -1,5 +1,6 @@
 import html
 import json
+import os
 import time
 
 import requests
@@ -56,4 +57,5 @@ def delete_entities():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False)
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug, use_reloader=False)
