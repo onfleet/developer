@@ -5,3 +5,4 @@ venv/
 .DS_Store
 .auth.json
 node_modules
+api-tools/delete-entities/onfleet_delete_mcp.py
