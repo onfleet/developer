@@ -1,2 +1,2 @@
 flask
-requests
+requests==2.33.0
