@@ -7,3 +7,4 @@ venv/
 node_modules
 api-tools/delete-entities/onfleet_delete_mcp.py
 .env
+api-tools/delete-entities/delete_worker_tasks.py
